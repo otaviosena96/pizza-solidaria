@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now())
+
+  @@map("users")
+}
+
+model Customer {
+  id            String   @id @default(uuid())
+  name          String
+  password_hash String
+  cpf           String   @unique
+  phone         String
+  email         String   @unique
+  adress        Adress   @relation(fields: [adress_id], references: [id])
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now())
+  Order         Order[]
+  adress_id     String
+
+  @@map("customers")
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  customer        Customer @relation(fields: [customer_id], references: [id])
+  pizza_calabresa Int
+  pizza_mussarela Int
+  status          Status   @relation(fields: [status_id], references: [id])
+  paidOut         Boolean  @default(false)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now())
+  customer_id     String
+  status_id       Int      @default(1)
+
+  @@map("orders")
+}
+
+model Adress {
+  id           String     @id @default(uuid())
+  cep          String
+  adress       String
+  number       String
+  complemento  String
+  neighborhood String
+  city         String
+  uf           String
+  Customer     Customer[]
+
+  @@map("adresses")
+}
+
+model Status {
+  id    Int     @id @default(autoincrement())
+  name  String
+  Order Order[]
+
+  @@map("status")
+}
